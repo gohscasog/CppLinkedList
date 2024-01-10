@@ -9,15 +9,18 @@ struct Node
 class Stack
 {
 public:
-    Node* Top(){return head;}
+    ~Stack();
+
+    Node* At(int index);
     int Size(){return size;}
-    void Emplace(int val);
-    void Insert(int val);
+    void Emplace(int value);
+    void Insert(int value);
+    void InsertAt(int value, int index);
+    void Remove(int index);
     void Pop();
 
 private:
     Node* head = nullptr;
     Node* tail = nullptr;
-    Node* prev = nullptr;
     int size = 0;
 };

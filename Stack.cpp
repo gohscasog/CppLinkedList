@@ -1,5 +1,48 @@
 #include "Stack.h"
 
+Stack::~Stack()
+{
+    for(int i = 0; i < size; i++)
+    {
+        delete Stack::At(i);
+    }
+
+    head = nullptr;
+    tail = nullptr;
+    size = 0;
+}
+
+Node* Stack::At(int index)
+{
+    if(index < 0 || index >= size)
+    {
+        throw std::out_of_range("Error: index out of range");
+    }
+
+    if(size == 0)
+    {
+        throw std::exception("Error: empty container");
+    }
+
+    auto ptr = head;
+    for(int i = 0; i < index; i++)
+    {
+        ptr = ptr->next;
+    }
+
+    return ptr;
+}
+
+int Stack::Get(int index)
+{
+    return Stack::At(index)->val;
+}
+
+void Stack::Set(int value, int index)
+{
+    Stack::At(index)->val = value;
+}
+
 void Stack::Emplace(int value)
 {
     Node* node = new Node{value, nullptr};
@@ -35,87 +78,90 @@ void Stack::Insert(int value)
 
 void Stack::InsertAt(int value, int index)
 {
-    // TODO:
+    if(index < 0 || index >= size)
+    {
+        throw std::out_of_range("Error: index out of range");
+    }
+
+    if(index == 0 || size == 0)
+    {
+        Stack::Emplace(value);
+        return;
+    }
+
+    if(index == size - 1)
+    {
+        Stack::Insert(value);
+        return;
+    }
+
+    Node* node = new Node{value, nullptr};
+    Node* prev = Stack::At(index - 1);
+    Node* curr = prev->next;
+    prev->next = node;
+    node->next = curr;
+    size++;
 }
 
 void Stack::Pop()
 {
-    if(!size)
+    Node* post = head->next;
+    delete head;
+    head = post;
+    size--; 
+}
+
+void Stack::Pull()
+{
+    if(size == 0)
     {
         throw std::exception("Error: empty container");
     }
 
-    if(size == 1)
+    if(size > 1)
+    {
+        Node* node = Stack::At(size - 2);
+        node->next = nullptr;
+
+        delete tail;
+        tail = nullptr;
+    } 
+    else
     {
         delete head;
         head = nullptr;
         tail = nullptr;
     }
 
-    if(tail)
-    {
-        // TODO:
-        // delete tail;
-        // tail = nullptr; //change to tail = prev;
-        // size--;
-
-        // auto prev = Stack::At(size - 1);
-        // tail = prev;
-    } 
-}
-
-Node* Stack::At(int index)
-{
-    if(!size)
-    {
-        throw std::exception("Error: empty container");
-    }
-
-    if(index < 0 || index >= size)
-    {
-        throw std::out_of_range("Error: index out of range");
-    }
-
-    auto ptr = head;
-    for(int i = 0; i < index; i++)
-    {
-        ptr = ptr->next;
-    }
-
-    return ptr;
+    size--;
 }
 
 void Stack::Remove(int index)
 {
-    if(!size)
-    {
-        throw std::exception("Error: empty container");
-    }
-
     if(index < 0 || index >= size)
     {
         throw std::out_of_range("Error: index out of range");
     }
 
-    if(index == size - 1)
+    if(size == 0)
+    {
+        throw std::exception("Error: empty container");
+    }
+
+    if(index == 0)
     {
         Stack::Pop();
     }
-
-    auto ptr = Stack::At(index);
-    delete ptr;
-    ptr = nullptr;
-    size--;
-}
-
-Stack::~Stack()
-{
-    for(int i = 0; i < size; i++)
+    else if(size == 1 || index == size - 1)
     {
-        delete Stack::At(i);
+        Stack::Pull();
     }
-
-    head = nullptr;
-    tail = nullptr;
-    size = 0;
+    else
+    {
+        Node* prev = Stack::At(index - 1);
+        Node* curr = prev->next;
+        prev->next = curr->next;
+        delete curr;
+        size--;
+    }
 }
